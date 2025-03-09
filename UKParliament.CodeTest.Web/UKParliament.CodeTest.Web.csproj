@@ -23,8 +23,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UKParliament.CodeTest.Data\UKParliament.CodeTest.Data.csproj" />
+    <None Remove="ClientApp\src\app\interceptors\error.interceptor.ts" />
+    <None Remove="ClientApp\src\app\models\response.model.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UKParliament.CodeTest.Application\UKParliament.CodeTest.Application.csproj" />
     <ProjectReference Include="..\UKParliament.CodeTest.Services\UKParliament.CodeTest.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\interceptors\error.interceptor.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\models\response.model.ts" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

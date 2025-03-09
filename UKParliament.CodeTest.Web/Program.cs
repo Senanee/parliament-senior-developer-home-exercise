@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UKParliament.CodeTest.Data;
-using UKParliament.CodeTest.Services;
+using UKParliament.CodeTest.Services.Interface;
+using UKParliament.CodeTest.Services.Service;
 
 namespace UKParliament.CodeTest.Web;
 
@@ -11,12 +12,13 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-
         builder.Services.AddControllersWithViews();
 
         builder.Services.AddDbContext<PersonManagerContext>(op => op.UseInMemoryDatabase("PersonManager"));
 
+        // Register services with the correct interfaces
         builder.Services.AddScoped<IPersonService, PersonService>();
+        builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 
         var app = builder.Build();
 
@@ -46,3 +48,4 @@ public class Program
         app.Run();
     }
 }
+
