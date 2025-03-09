@@ -1,0 +1,50 @@
+<div>
+  <h2>{{ isEditMode ? (isNewPerson ? "Add" :"Edit") : "View"}} Person Details</h2>
+  <div *ngIf="loading else displayform" class="loading-container">
+    <app-loading></app-loading>
+  </div>
+  <ng-template #displayform>
+    <form [formGroup]="personForm" (ngSubmit)="onSave()">
+      <div class="form-group">
+        <label for="firstName" class="form-label">First Name:</label>
+        <input id="firstName" formControlName="firstName" [readonly]="!isEditMode" />
+        <div *ngIf="personForm.get('firstName')?.invalid && (personForm.get('firstName')?.dirty || personForm.get('firstName')?.touched)">
+          <div *ngIf="personForm.get('firstName')?.errors?.['required']">First Name is required.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="lastName" class="form-label">Last Name:</label>
+        <input id="lastName" formControlName="lastName" [readonly]="!isEditMode" />
+        <div *ngIf="personForm.get('lastName')?.invalid && (personForm.get('lastName')?.dirty || personForm.get('lastName')?.touched)">
+          <div *ngIf="personForm.get('lastName')?.errors?.['required']">Last Name is required.</div>
+        </div>
+
+      </div>
+      <div class="form-group">
+        <label for="dateOfBirth" class="form-label">Date of Birth:</label>
+        <input id="dateOfBirth" formControlName="dateOfBirth" type="date" [readonly]="!isEditMode" />
+        <div *ngIf="personForm.get('dateOfBirth')?.invalid && (personForm.get('dateOfBirth')?.dirty || personForm.get('dateOfBirth')?.touched)">
+          <div *ngIf="personForm.get('dateOfBirth')?.errors?.['required']">Date of Birth is required.</div>
+        </div>
+
+      </div>
+      <div class="form-group">
+        <label for="departmentId" class="form-label">Department:</label>
+        <select id="departmentId" formControlName="departmentId" [disabled]="!isEditMode">
+          <option [ngValue]="null" disabled>Choose Department</option>
+          <option *ngFor="let department of departments" [value]="department.id" selected="">{{ department.name }}</option>
+        </select>
+        <div *ngIf="personForm.get('departmentId')?.invalid && (personForm.get('departmentId')?.dirty || personForm.get('departmentId')?.touched)">
+          <div *ngIf="personForm.get('departmentId')?.errors?.['required']">Department is required.</div>
+        </div>
+
+      </div>
+      <div class="input-group">
+        <button type="button" (click)="toggleEditMode()" class="btn btn-secondary">{{ isEditMode ? 'Cancel' : 'Edit' }} </button>
+        <button type="submit" [disabled]="personForm.invalid" class="btn btn-success" *ngIf="isEditMode">Save</button>
+        <button type="button" (click)="confirmDelete()" class="btn btn-danger" *ngIf="!isEditMode">Delete</button>
+        <button type="button" (click)="closeForm()" class="btn btn-primary">Close</button>
+      </div>
+    </form>
+  </ng-template>
+</div>
