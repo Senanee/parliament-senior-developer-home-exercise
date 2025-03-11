@@ -1,24 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UKParliament.CodeTest.Data;
-
+namespace UKParliament.CodeTest.Data.Entities;
 public class Person
 {
     public int Id { get; set; }
 
-    [Required]
-    public string FirstName { get; set; }
+    public string FirstName { get; set; } = string.Empty;
 
-    [Required]
-    public string LastName { get; set; }
+    public string LastName { get; set; } = string.Empty;
 
-    [Required]
     public DateTime DateOfBirth { get; set; }
 
-    [Required]
+    public string Email { get; set; } = string.Empty;
+
     public int DepartmentId { get; set; }
 
     public Department Department { get; set; }
-
-    // Add any additional properties here
 }

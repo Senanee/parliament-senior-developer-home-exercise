@@ -1,33 +1,44 @@
-﻿using Microsoft.EntityFrameworkCore;
-using UKParliament.CodeTest.Data;
+﻿using UKParliament.CodeTest.Data.Entities;
+using UKParliament.CodeTest.Data.Repositories.Interfaces;
 using UKParliament.CodeTest.Services.Interface;
 
 namespace UKParliament.CodeTest.Services.Service
 {
     public class DepartmentService : IDepartmentService
     {
-        private readonly PersonManagerContext _context;
+        private readonly IDepartmentRepository _departmentRepository;
 
-        public DepartmentService(PersonManagerContext context)
+        public DepartmentService(IDepartmentRepository departmentRepository)
         {
-            _context = context;
+            _departmentRepository = departmentRepository;
         }
 
         public async Task<IEnumerable<Department>> GetAllDepartmentsAsync()
         {
             try
             {
-                var departments = await _context.Departments.AsNoTracking().ToListAsync();
-                return departments is not null ? departments : null!;
+                return await _departmentRepository.GetAllAsync();
             }
             catch (Exception ex)
             {
                 //LogException.LogExceptions(ex);
 
-                throw new InvalidOperationException("Error occurred retriving departments");
+                throw new InvalidOperationException("Error occurred retrieving departments");
             }
         }
 
+        public async Task<Department?> GetByIdAsync(int id)
+        {
+            try
+            {
+                return await _departmentRepository.GetByIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                //LogException.LogExceptions(ex);
 
+                throw new InvalidOperationException("Error occurred retrieving department");
+            }
+        }
     }
 }

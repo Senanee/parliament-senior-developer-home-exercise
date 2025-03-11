@@ -1,32 +1,34 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using UKParliament.CodeTest.Application.Logs;
 using UKParliament.CodeTest.Application.Responses;
-using UKParliament.CodeTest.Data;
+using UKParliament.CodeTest.Data.Entities;
+using UKParliament.CodeTest.Data.Repositories.Interfaces;
 using UKParliament.CodeTest.Services.Interface;
 
 namespace UKParliament.CodeTest.Services.Service;
 
 public class PersonService : IPersonService
 {
-    private readonly PersonManagerContext _context;
+    private readonly IPersonRepository _personRepository;
+    private readonly IValidationService _validationService;
 
-    public PersonService(PersonManagerContext context)
+    public PersonService(IPersonRepository personRepository, IValidationService validationService)
     {
-        _context = context;
+        _personRepository = personRepository;
+        _validationService = validationService;
     }
 
     public async Task<IEnumerable<Person>> GetAllPeopleAsync()
     {
         try
         {
-            var people = await _context.People.Include(p => p.Department).AsNoTracking().ToListAsync();
-            return people is not null ? people : null!;
+            return await _personRepository.GetAllAsync();
         }
         catch (Exception ex)
         {
-            //LogException.LogExceptions(ex);
+            LogException.LogExceptions(ex);
 
-            throw new InvalidOperationException("Error occurred retriving people");
+            throw new InvalidOperationException("Error occurred retrieving people");
         }
     }
 
@@ -34,15 +36,13 @@ public class PersonService : IPersonService
     {
         try
         {
-            var person = await _context.People.Include(p => p.Department).FirstOrDefaultAsync(p => p.Id == id); ;
-
-            return person is not null ? person : null!;
+            return await _personRepository.GetByIdAsync(id);
         }
         catch (Exception ex)
         {
-            //LogException.LogExceptions(ex);
+            LogException.LogExceptions(ex);
 
-            throw new InvalidOperationException("Error occurred retriving entity");
+            throw new InvalidOperationException("Error occurred retrieving entity");
         }
     }
 
@@ -50,8 +50,14 @@ public class PersonService : IPersonService
     {
         try
         {
-            var currentEntity = _context.People.Add(person).Entity;
-            await _context.SaveChangesAsync();
+            var validationResults = _validationService.Validate(person);
+            if (validationResults.Count > 0)
+            {
+                var errorMessage = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
+                return new Response { Flag = false, message = errorMessage };
+            }
+
+            var currentEntity = await _personRepository.AddAsync(person);
 
             if (currentEntity is not null && currentEntity.Id > 0)
                 return new Response(true, $"{person.FirstName} {person.LastName} added to database successfully.");
@@ -60,7 +66,7 @@ public class PersonService : IPersonService
         }
         catch (Exception ex)
         {
-            //LogException.LogExceptions(ex);
+            LogException.LogExceptions(ex);
 
             return new Response(false, "Error occurred adding new entity");
         }
@@ -70,20 +76,25 @@ public class PersonService : IPersonService
     {
         try
         {
-            var person = await FindByIdAsync(entity.Id);
+            var validationResults = _validationService.Validate(entity);
+            if (validationResults.Count > 0)
+            {
+                var errorMessage = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
+                return new Response { Flag = false, message = errorMessage };
+            }
+
+            var person = await _personRepository.GetByIdAsync(entity.Id);
 
             if (person is null)
                 return new Response(false, $"{entity.FirstName} {entity.LastName} not found");
 
-            _context.Entry(person).State = EntityState.Detached;
-            _context.People.Update(entity);
-            await _context.SaveChangesAsync();
+            await _personRepository.UpdateAsync(entity);
 
             return new Response(true, $"{entity.FirstName} {entity.LastName} is updated successfully");
         }
         catch (Exception ex)
         {
-            //LogException.LogExceptions(ex);
+            LogException.LogExceptions(ex);
 
             return new Response(false, "Error occurred updating person");
         }
@@ -91,54 +102,36 @@ public class PersonService : IPersonService
 
     public async Task<Response> DeletePersonAsync(int id)
     {
-         try
-            {
-                var person = await FindByIdAsync(id);
+        try
+        {
+            var person = await _personRepository.GetByIdAsync(id);
 
-                if (person is null)
-                    return new Response(false, $"Person not found");
+            if (person is null)
+                return new Response(false, $"Person not found");
 
-                _context.People.Remove(person);
-                await _context.SaveChangesAsync();
+            await _personRepository.DeleteAsync(id);
 
-                return new Response(true, $"{person.FirstName} {person.LastName} is deleted successfully");
-            }
-            catch (Exception ex)
-            {
-                //LogException.LogExceptions(ex);
+            return new Response(true, $"{person.FirstName} {person.LastName} is deleted successfully");
+        }
+        catch (Exception ex)
+        {
+            LogException.LogExceptions(ex);
 
-                return new Response(false, "Error occurred Deleting entity");
-            }
+            return new Response(false, "Error occurred Deleting entity");
+        }
     }
 
     public async Task<Person> GetByAsync(Expression<Func<Person, bool>> predicate)
     {
         try
         {
-            var people = await _context.People.Where(predicate).FirstOrDefaultAsync();
-            return people is not null ? people : null!;
+            return await _personRepository.GetByAsync(predicate);
         }
         catch (Exception ex)
         {
-            //LogException.LogExceptions(ex);
+            LogException.LogExceptions(ex);
 
-            throw new InvalidOperationException("Error occurred retriving entity");
-        }
-    }
-
-    public async Task<Person> FindByIdAsync(int id)
-    {
-        try
-        {
-            var person = await _context.People.FindAsync(id);
-
-            return person is not null ? person : null!;
-        }
-        catch (Exception ex)
-        {
-            //LogException.LogExceptions(ex);
-
-            throw new InvalidOperationException("Error occurred retriving entity");
+            throw new InvalidOperationException("Error occurred retrieving entity");
         }
     }
 }
