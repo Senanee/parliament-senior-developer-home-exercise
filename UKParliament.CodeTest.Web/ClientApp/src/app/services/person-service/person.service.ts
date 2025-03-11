@@ -8,7 +8,6 @@ import { ResponseModel } from '../../models/response.model';
   providedIn: 'root'
 })
 export class PersonService {
-
   constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
 
   getPeople(): Observable<PersonViewModel[]> {
@@ -55,4 +54,3 @@ export class PersonService {
     );
   }
 }
-

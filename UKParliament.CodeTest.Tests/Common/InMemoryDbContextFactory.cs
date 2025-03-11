@@ -1,11 +1,8 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using UKParliament.CodeTest.Data;
-using UKParliament.CodeTest.Data.Entities;
 
 namespace UKParliament.CodeTest.Tests.Common
 {
-
     public class InMemoryDbContextFactory
     {
         public static PersonManagerContext Create()

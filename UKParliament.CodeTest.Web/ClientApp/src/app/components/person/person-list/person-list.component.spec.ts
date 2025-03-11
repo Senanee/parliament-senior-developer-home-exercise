@@ -19,8 +19,8 @@ describe('PersonListComponent', () => {
       dateOfBirth: new Date('1990-01-01'),
       email: 'john.doe@example.com',
       departmentId: 1
-},
-    { id: 2, firstName: 'Jane', lastName: 'Smith', dateOfBirth: new Date('1995-02-12') , email:'jane.smith@test.com', departmentId:2},
+    },
+    { id: 2, firstName: 'Jane', lastName: 'Smith', dateOfBirth: new Date('1995-02-12'), email: 'jane.smith@test.com', departmentId: 2 },
   ];
 
   beforeEach(async () => {

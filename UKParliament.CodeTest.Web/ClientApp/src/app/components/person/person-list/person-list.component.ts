@@ -14,7 +14,7 @@ export class PersonListComponent implements OnInit {
   searchTerm: string = '';
   selectedPerson: PersonViewModel | null = null;
   loading: boolean = true;
-  addUser: boolean= false;
+  addUser: boolean = false;
 
   constructor(private personService: PersonService, private personEditorService: PersonEditorService) { }
 
@@ -50,7 +50,7 @@ export class PersonListComponent implements OnInit {
   }
 
   addPerson(): void {
-    this.addUser=true;
+    this.addUser = true;
     this.personEditorService.closeEditor();
     this.selectedPerson = null;
   }

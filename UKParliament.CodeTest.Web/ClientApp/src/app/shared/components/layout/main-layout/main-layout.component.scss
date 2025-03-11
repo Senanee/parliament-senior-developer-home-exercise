@@ -8,12 +8,14 @@ main {
   display: flex;
   flex-grow: 1;
 }
+
 aside {
   display: flex;
   flex-direction: column;
   width: 250px;
   flex-shrink: 0;
 }
+
 article {
   display: flex;
   flex-direction: column;
@@ -40,9 +42,11 @@ article {
   main {
     flex-direction: column;
   }
+
   aside {
     width: 100%;
   }
+
   .sidebar-container {
     width: 100%;
     height: max-content;
@@ -56,5 +60,3 @@ article {
     margin-bottom: 1rem;
   }
 }
-
-

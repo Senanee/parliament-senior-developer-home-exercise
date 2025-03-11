@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using global::UKParliament.CodeTest.Application.Conversions;
 using global::UKParliament.CodeTest.Application.ViewModels;
-using global::UKParliament.CodeTest.Data;
 using UKParliament.CodeTest.Data.Entities;
 using Xunit;
 
@@ -31,7 +30,6 @@ namespace UKParliament.CodeTest.Tests.UKParliament.CodeTest.Application.Conversi
             result.Name.Should().Be(departmentViewModel.Name);
         }
 
-
         [Fact]
         public void ToViewModel_ReturnsDepartmentViewModel_WhenEntityIsValid()
         {
@@ -46,7 +44,6 @@ namespace UKParliament.CodeTest.Tests.UKParliament.CodeTest.Application.Conversi
             result.Id.Should().Be(department.Id);
             result.Name.Should().Be(department.Name);
         }
-
 
         [Fact]
         public void ToViewModelList_ReturnsListOfDepartmentViewModels_WhenEntitiesAreValid()
@@ -67,7 +64,5 @@ namespace UKParliament.CodeTest.Tests.UKParliament.CodeTest.Application.Conversi
             result.First().Id.Should().Be(departments.First().Id);
             result.First().Name.Should().Be(departments.First().Name);
         }
-
     }
 }
-

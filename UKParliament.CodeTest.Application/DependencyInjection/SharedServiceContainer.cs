@@ -8,7 +8,7 @@ namespace UKParliament.CodeTest.Application.DependencyInjection
     public static class SharedServiceContainer
     {
         public static IServiceCollection AddSharedServices<TContext>
-            (this IServiceCollection services,  string fileName)
+            (this IServiceCollection services, string fileName)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
 using UKParliament.CodeTest.Data.Entities;
 using UKParliament.CodeTest.Data.Repositories.Interfaces;
 

@@ -9,7 +9,6 @@ namespace UKParliament.CodeTest.Application.Logs
             LogToFile(exception.Message);
             LogToConsole(exception.Message);
             LogToDebugger(exception.Message);
-
         }
 
         public static void LogToDebugger(string message) => Log.Debug(message);

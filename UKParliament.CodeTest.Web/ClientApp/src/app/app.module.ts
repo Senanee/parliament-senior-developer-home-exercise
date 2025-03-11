@@ -15,12 +15,12 @@ import { SharedModule } from './shared/shared.module';
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     FormsModule,
-    ReactiveFormsModule, 
+    ReactiveFormsModule,
     ComponentsModule,
     AppRoutingModule,
     SharedModule
   ],
-  exports:[],
+  exports: [],
   providers: [provideHttpClient(withInterceptorsFromDi())]
 })
 export class AppModule { }

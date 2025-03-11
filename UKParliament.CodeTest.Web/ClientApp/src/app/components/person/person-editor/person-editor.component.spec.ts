@@ -73,7 +73,6 @@ describe('PersonEditorComponent', () => {
     expect(component.isEditMode).toBeFalse();
   });
 
-
   it('should update the form when ngOnChanges is triggered', () => {
     spyOn(component, 'updateForm').and.callThrough();
     const newPerson: PersonViewModel = {

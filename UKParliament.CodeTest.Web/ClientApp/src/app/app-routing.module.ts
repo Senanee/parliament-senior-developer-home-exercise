@@ -7,13 +7,13 @@ import { PersonEditorComponent } from './components/person/person-editor/person-
 import { AddPersonComponent } from './components/person/add-person/add-person.component';
 
 const routes: Routes = [{ path: 'people', component: PersonListComponent },
-  { path: '', redirectTo: '/people', pathMatch: 'full' },
-  { path: 'create', component: AddPersonComponent },
-  {
-    path: 'contact',
-    component: ContactComponent,
-  },
-  { path: '**', component: PageNotFoundComponent }
+{ path: '', redirectTo: '/people', pathMatch: 'full' },
+{ path: 'create', component: AddPersonComponent },
+{
+  path: 'contact',
+  component: ContactComponent,
+},
+{ path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({

@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using UKParliament.CodeTest.Application.Conversions;
 using UKParliament.CodeTest.Application.ViewModels;
-using UKParliament.CodeTest.Data;
 using UKParliament.CodeTest.Data.Entities;
 using Xunit;
 
@@ -76,5 +75,3 @@ namespace UKParliament.CodeTest.Tests.Conversions
         }
     }
 }
-
-

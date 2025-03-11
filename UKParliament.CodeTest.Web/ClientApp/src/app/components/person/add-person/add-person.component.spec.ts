@@ -103,4 +103,3 @@ describe('AddPersonComponent', () => {
     expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/people');
   });
 });
-

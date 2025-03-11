@@ -8,7 +8,6 @@ import { ResponseModel } from '../../models/response.model';
   providedIn: 'root'
 })
 export class DepartmentService {
-
   constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
 
   public getDepartments(): Observable<DepartmentViewModel[]> {

@@ -9,24 +9,24 @@ import { SharedModule } from '../shared/shared.module';
 import { AddPersonComponent } from './person/add-person/add-person.component';
 
 @NgModule({
-   declarations: [
-      PersonListComponent,
-      PersonEditorComponent,
-      ContactComponent,
+  declarations: [
+    PersonListComponent,
+    PersonEditorComponent,
+    ContactComponent,
     AddPersonComponent
-    ],
-    imports: [
-      CommonModule,
-      BrowserModule,
-      FormsModule,
-      ReactiveFormsModule, 
-      SharedModule
-    ],
-    exports:[
-      PersonListComponent,
-      PersonEditorComponent,
-      ContactComponent,
-      AddPersonComponent
-    ]
+  ],
+  imports: [
+    CommonModule,
+    BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
+    SharedModule
+  ],
+  exports: [
+    PersonListComponent,
+    PersonEditorComponent,
+    ContactComponent,
+    AddPersonComponent
+  ]
 })
 export class ComponentsModule { }

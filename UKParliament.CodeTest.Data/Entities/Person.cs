@@ -1,6 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace UKParliament.CodeTest.Data.Entities;
 
-namespace UKParliament.CodeTest.Data.Entities;
 public class Person
 {
     public int Id { get; set; }

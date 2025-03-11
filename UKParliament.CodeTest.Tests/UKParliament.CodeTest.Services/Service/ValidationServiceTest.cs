@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentAssertions;
+using System.ComponentModel.DataAnnotations;
 using UKParliament.CodeTest.Services.Service;
-using FluentAssertions;
 using Xunit;
 
 namespace UKParliament.CodeTest.Tests.UKParliament.CodeTest.Services.Service

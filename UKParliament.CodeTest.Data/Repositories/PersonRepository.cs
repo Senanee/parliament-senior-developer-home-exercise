@@ -16,7 +16,7 @@ namespace UKParliament.CodeTest.Data.Repositories
 
         public async Task<IEnumerable<Person>> GetAllAsync()
         {
-            var people= await _context.People.AsNoTracking().ToListAsync();
+            var people = await _context.People.AsNoTracking().ToListAsync();
             return people is not null ? people : null!;
         }
 

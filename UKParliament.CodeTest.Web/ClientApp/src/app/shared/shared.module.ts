@@ -14,7 +14,7 @@ import { MaxDateValidator } from './validations/max-date-validator';
     PageNotFoundComponent,
     FooterComponent,
     HeaderComponent,
-    SidebarComponent, 
+    SidebarComponent,
     LoadingComponent,
     MainLayoutComponent
   ],
@@ -22,11 +22,11 @@ import { MaxDateValidator } from './validations/max-date-validator';
     CommonModule,
     RouterModule
   ],
-  exports:[
+  exports: [
     PageNotFoundComponent,
     FooterComponent,
     HeaderComponent,
-    SidebarComponent, 
+    SidebarComponent,
     LoadingComponent,
     MainLayoutComponent,
   ]

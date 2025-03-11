@@ -1,5 +1,4 @@
-﻿using System;
-using UKParliament.CodeTest.Application.Conversions.Interfaces;
+﻿using UKParliament.CodeTest.Application.Conversions.Interfaces;
 using UKParliament.CodeTest.Application.ViewModels;
 using UKParliament.CodeTest.Data.Entities;
 
@@ -26,15 +25,24 @@ namespace UKParliament.CodeTest.Application.Conversions
         {
             if (person == null) throw new ArgumentNullException(nameof(person));
 
-            return new PersonViewModel() { Id=person.Id, 
-                FirstName= person.FirstName, LastName = person.LastName, DateOfBirth = person.DateOfBirth, DepartmentId = person.DepartmentId, Email = person.Email };
+            return new PersonViewModel()
+            {
+                Id = person.Id,
+                FirstName = person.FirstName,
+                LastName = person.LastName,
+                DateOfBirth = person.DateOfBirth,
+                DepartmentId = person.DepartmentId,
+                Email = person.Email
+            };
         }
 
         public IEnumerable<PersonViewModel> ToViewModelList(IEnumerable<Person> people)
         {
             if (people == null) throw new ArgumentNullException(nameof(people));
 
-            return people.Select(person => new PersonViewModel() {  Id=person.Id,
+            return people.Select(person => new PersonViewModel()
+            {
+                Id = person.Id,
                 FirstName = person.FirstName,
                 LastName = person.LastName,
                 DateOfBirth = person.DateOfBirth,

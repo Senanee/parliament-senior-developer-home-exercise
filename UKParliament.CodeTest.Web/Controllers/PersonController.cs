@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using UKParliament.CodeTest.Application.Conversions;
 using UKParliament.CodeTest.Application.Conversions.Interfaces;
 using UKParliament.CodeTest.Application.Responses;
 using UKParliament.CodeTest.Application.ViewModels;
 using UKParliament.CodeTest.Services.Interface;
-using UKParliament.CodeTest.Services.Service;
 
 namespace UKParliament.CodeTest.Web.Controllers;
 
