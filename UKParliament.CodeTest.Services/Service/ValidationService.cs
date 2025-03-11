@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using UKParliament.CodeTest.Services.Interface;
+using UKParliament.CodeTest.Services.Service.Interface;
 
 namespace UKParliament.CodeTest.Services.Service
 {

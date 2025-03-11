@@ -1,42 +1,45 @@
 ﻿using System.Linq.Expressions;
+using UKParliament.CodeTest.Application.Conversions.Interfaces;
 using UKParliament.CodeTest.Application.Logs;
 using UKParliament.CodeTest.Application.Responses;
+using UKParliament.CodeTest.Application.ViewModels;
 using UKParliament.CodeTest.Data.Entities;
 using UKParliament.CodeTest.Data.Repositories.Interfaces;
-using UKParliament.CodeTest.Services.Interface;
+using UKParliament.CodeTest.Services.Service.Interface;
 
 namespace UKParliament.CodeTest.Services.Service;
 
 public class PersonService : IPersonService
 {
     private readonly IPersonRepository _personRepository;
-    private readonly IValidationService _validationService;
+    private readonly IPersonConversion _personConversion;
 
-    public PersonService(IPersonRepository personRepository, IValidationService validationService)
+    public PersonService(IPersonRepository personRepository,IPersonConversion personConversion)
     {
         _personRepository = personRepository;
-        _validationService = validationService;
+        _personConversion = personConversion;
     }
 
-    public async Task<IEnumerable<Person>> GetAllPeopleAsync()
+    public async Task<IEnumerable<PersonViewModel>> GetAllPeopleAsync()
     {
         try
         {
-            return await _personRepository.GetAllAsync();
+            var people = await _personRepository.GetAllAsync();
+            return _personConversion.ToViewModelList(people);
         }
         catch (Exception ex)
         {
             LogException.LogExceptions(ex);
-
             throw new InvalidOperationException("Error occurred retrieving people");
         }
     }
 
-    public async Task<Person> GetPersonByIdAsync(int id)
+    public async Task<PersonViewModel> GetPersonByIdAsync(int id)
     {
         try
         {
-            return await _personRepository.GetByIdAsync(id);
+            var person = await _personRepository.GetByIdAsync(id);
+            return _personConversion.ToViewModel(person);
         }
         catch (Exception ex)
         {
@@ -46,18 +49,12 @@ public class PersonService : IPersonService
         }
     }
 
-    public async Task<Response> AddPersonAsync(Person person)
+    public async Task<Response> AddPersonAsync(PersonViewModel person)
     {
         try
         {
-            var validationResults = _validationService.Validate(person);
-            if (validationResults.Count > 0)
-            {
-                var errorMessage = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
-                return new Response { Flag = false, message = errorMessage };
-            }
-
-            var currentEntity = await _personRepository.AddAsync(person);
+            var personEntity = _personConversion.ToEntity(person);
+            var currentEntity = await _personRepository.AddAsync(personEntity);
 
             if (currentEntity is not null && currentEntity.Id > 0)
                 return new Response(true, $"{person.FirstName} {person.LastName} added to database successfully.");
@@ -72,25 +69,19 @@ public class PersonService : IPersonService
         }
     }
 
-    public async Task<Response> UpdatePersonAsync(Person entity)
+    public async Task<Response> UpdatePersonAsync(PersonViewModel personViewModel)
     {
         try
         {
-            var validationResults = _validationService.Validate(entity);
-            if (validationResults.Count > 0)
-            {
-                var errorMessage = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
-                return new Response { Flag = false, message = errorMessage };
-            }
-
-            var person = await _personRepository.GetByIdAsync(entity.Id);
+            var personEntity = _personConversion.ToEntity(personViewModel);
+            var person = await _personRepository.GetByIdAsync(personViewModel.Id);
 
             if (person is null)
-                return new Response(false, $"{entity.FirstName} {entity.LastName} not found");
+                return new Response(false, $"{personViewModel.FirstName} {personViewModel.LastName} not found");
 
-            await _personRepository.UpdateAsync(entity);
+            await _personRepository.UpdateAsync(person);
 
-            return new Response(true, $"{entity.FirstName} {entity.LastName} is updated successfully");
+            return new Response(true, $"{personViewModel.FirstName} {personViewModel.LastName} is updated successfully");
         }
         catch (Exception ex)
         {

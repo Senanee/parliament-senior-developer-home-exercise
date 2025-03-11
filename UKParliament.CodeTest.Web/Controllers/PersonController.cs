@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UKParliament.CodeTest.Application.Conversions.Interfaces;
 using UKParliament.CodeTest.Application.Responses;
 using UKParliament.CodeTest.Application.ViewModels;
-using UKParliament.CodeTest.Services.Interface;
+using UKParliament.CodeTest.Services.Service.Interface;
 
 namespace UKParliament.CodeTest.Web.Controllers;
 
@@ -13,13 +12,11 @@ namespace UKParliament.CodeTest.Web.Controllers;
 public class PersonController : ControllerBase
 {
     private readonly IPersonService _personService;
-    private readonly IPersonConversion _personConversion;
     private readonly IValidationService _validationService;
 
-    public PersonController(IPersonService personService, IPersonConversion personConversion, IValidationService validationService)
+    public PersonController(IPersonService personService, IValidationService validationService)
     {
         _personService = personService;
-        _personConversion = personConversion;
         _validationService = validationService;
     }
 
@@ -27,12 +24,7 @@ public class PersonController : ControllerBase
     public async Task<ActionResult<IEnumerable<PersonViewModel>>> GetPeople()
     {
         var people = await _personService.GetAllPeopleAsync();
-
-        if (!people.Any())
-            return NotFound("No persons detected in the database");
-
-        var list = _personConversion.ToViewModelList(people);
-        return list!.Any() ? Ok(list) : NotFound("No person found");
+        return people!.Any() ? Ok(people) : NotFound("No person found");
     }
 
     [HttpGet("{id}")]
@@ -43,29 +35,42 @@ public class PersonController : ControllerBase
         if (person == null || !(person.Id > 0))
             return NotFound("No person found");
 
-        var _person = _personConversion.ToViewModel(person);
-        return _person is not null ? Ok(_person) : NotFound("No person found");
+        return person is not null ? Ok(person) : NotFound("No person found");
     }
 
     [HttpPost]
     public async Task<ActionResult<Response>> AddPerson(PersonViewModel person)
     {
-        var personEntity = _personConversion.ToEntity(person);
-        var response = await _personService.AddPersonAsync(personEntity);
+        var validationResults = _validationService.Validate(person);
+        if (validationResults.Count > 0)
+        {
+            var errorMessage = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
+            return BadRequest( new Response { Flag = false, message = errorMessage });
+        }
+
+        var response = await _personService.AddPersonAsync(person);
 
         if (!response.Flag)
         {
             return BadRequest(response);
         }
 
-        return CreatedAtAction(nameof(GetPerson), new { id = personEntity.Id }, response);
+        return CreatedAtAction(nameof(GetPerson), new { id = person.Id }, response);
+
     }
 
     [HttpPut("{id}")]
     public async Task<ActionResult<Response>> UpdatePerson(PersonViewModel person)
     {
-        var personEntity = _personConversion.ToEntity(person);
-        var response = await _personService.UpdatePersonAsync(personEntity);
+        var validationResults = _validationService.Validate(person);
+
+        if (validationResults.Count > 0)
+        {
+            var errorMessage = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
+            return BadRequest(new Response { Flag = false, message = errorMessage });
+        }
+
+        var response = await _personService.UpdatePersonAsync(person);
         if (!response.Flag)
         {
             return BadRequest(response);
@@ -75,7 +80,7 @@ public class PersonController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePerson(int id)
+    public async Task<ActionResult<Response>> DeletePerson(int id)
     {
         var response = await _personService.DeletePersonAsync(id);
         return response.Flag is true ? Ok(response) : BadRequest(response);

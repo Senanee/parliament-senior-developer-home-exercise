@@ -30,11 +30,11 @@ export class PersonService {
     );
   }
 
-  updatePerson(person: PersonViewModel): Observable<void> {
-    return this.http.put<ResponseModel<void>>(`${this.baseUrl}api/person/${person.id}`, person).pipe(
+  updatePerson(person: PersonViewModel): Observable<string> {
+    return this.http.put<ResponseModel<string>>(`${this.baseUrl}api/person/${person.id}`, person).pipe(
       map(response => {
         if (response.flag) {
-          return;
+          return response.message
         } else {
           throw new Error(response.message);
         }

@@ -4,8 +4,8 @@ using UKParliament.CodeTest.Application.Conversions.Interfaces;
 using UKParliament.CodeTest.Data;
 using UKParliament.CodeTest.Data.Repositories.Interfaces;
 using UKParliament.CodeTest.Data.Repositories;
-using UKParliament.CodeTest.Services.Interface;
 using UKParliament.CodeTest.Services.Service;
+using UKParliament.CodeTest.Services.Service.Interface;
 
 namespace UKParliament.CodeTest.Web;
 
@@ -26,6 +26,7 @@ public class Program
         builder.Services.AddScoped<IPersonConversion, PersonConversion>();
         builder.Services.AddScoped<IPersonService, PersonService>();
         builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+        builder.Services.AddScoped<IValidationService, ValidationService>();
 
         var app = builder.Build();
 

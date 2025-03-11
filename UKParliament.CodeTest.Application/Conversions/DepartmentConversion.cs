@@ -21,14 +21,14 @@ namespace UKParliament.CodeTest.Application.Conversions
         {
             if (department == null) throw new ArgumentNullException(nameof(department));
 
-            return new DepartmentViewModel(department.Id, department.Name);
+            return new DepartmentViewModel() { Id=department.Id, Name=department.Name };
         }
 
         public IEnumerable<DepartmentViewModel> ToViewModelList(IEnumerable<Department> departments)
         {
             if (departments == null) throw new ArgumentNullException(nameof(departments));
 
-            return departments.Select(d => new DepartmentViewModel(d.Id, d.Name)).ToList();
+            return departments.Select(d => new DepartmentViewModel() { Id = d.Id, Name = d.Name }).ToList();
         }
     }
 }

@@ -35,7 +35,13 @@ namespace UKParliament.CodeTest.Data.Repositories
 
         public async Task UpdateAsync(Person person)
         {
-            _context.People.Update(person);
+            var existingPerson = await _context.People.FindAsync(person.Id);
+            if (existingPerson == null)
+            {
+                throw new DbUpdateConcurrencyException("Attempted to update an entity that does not exist in the store.");
+            }
+
+            _context.Entry(existingPerson).CurrentValues.SetValues(person);
             await _context.SaveChangesAsync();
         }
 

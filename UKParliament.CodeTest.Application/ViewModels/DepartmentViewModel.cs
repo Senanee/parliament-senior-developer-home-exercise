@@ -2,8 +2,10 @@
 
 namespace UKParliament.CodeTest.Application.ViewModels
 {
-    public record DepartmentViewModel(
-        int Id,
-        [Required] string Name
-        );
+    public record DepartmentViewModel()
+    {
+        public int Id { get; set; }
+        [Required] 
+        public string Name { get; set; }
+    }
 }

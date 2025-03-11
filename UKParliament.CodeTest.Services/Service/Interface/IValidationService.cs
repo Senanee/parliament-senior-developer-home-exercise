@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UKParliament.CodeTest.Services.Interface
+namespace UKParliament.CodeTest.Services.Service.Interface
 {
     public interface IValidationService
     {

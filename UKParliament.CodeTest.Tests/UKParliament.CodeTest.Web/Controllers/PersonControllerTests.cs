@@ -2,11 +2,10 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using UKParliament.CodeTest.Application.Conversions.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using UKParliament.CodeTest.Application.Responses;
 using UKParliament.CodeTest.Application.ViewModels;
-using UKParliament.CodeTest.Data.Entities;
-using UKParliament.CodeTest.Services.Interface;
+using UKParliament.CodeTest.Services.Service.Interface;
 using UKParliament.CodeTest.Web.Controllers;
 using Xunit;
 
@@ -15,35 +14,27 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
     public class PersonControllerTests
     {
         private readonly IPersonService _personService;
-        private readonly IPersonConversion _personConversion;
         private readonly IValidationService _validationService;
         private readonly PersonController _controller;
 
         public PersonControllerTests()
         {
             _personService = A.Fake<IPersonService>();
-            _personConversion = A.Fake<IPersonConversion>();
             _validationService = A.Fake<IValidationService>();
-            _controller = new PersonController(_personService, _personConversion, _validationService);
+            _controller = new PersonController(_personService, _validationService);
         }
 
         [Fact]
         public async Task GetPeople_ReturnsOkResult_WithListOfPeople()
         {
             // Arrange
-            var people = new List<Person>
+            var people = new List<PersonViewModel>
             {
-                new Person { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1 , Email = "John.Doe@test.com"},
-                new Person { Id = 2, FirstName = "Jane", LastName = "Smith", DateOfBirth = new DateTime(1992, 2, 2), DepartmentId = 2, Email = "Jane.Smith@test.com" }
-            };
-            var personViewModels = new List<PersonViewModel>
-            {
-                new PersonViewModel() { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" },
-                new PersonViewModel() { Id = 2, FirstName = "Jane", LastName = "Smith", DateOfBirth = new DateTime(1992, 2, 2), DepartmentId = 2, Email = "John.Doe@test.com" }
+                new PersonViewModel { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" },
+                new PersonViewModel { Id = 2, FirstName = "Jane", LastName = "Smith", DateOfBirth = new DateTime(1992, 2, 2), DepartmentId = 2, Email = "Jane.Smith@test.com" }
             };
 
             A.CallTo(() => _personService.GetAllPeopleAsync()).Returns(people);
-            A.CallTo(() => _personConversion.ToViewModelList(people)).Returns(personViewModels);
 
             // Act
             var result = await _controller.GetPeople();
@@ -60,7 +51,7 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
         public async Task GetPeople_ReturnsNotFound_WhenNoPeopleExist()
         {
             // Arrange
-            A.CallTo(() => _personService.GetAllPeopleAsync()).Returns(new List<Person>());
+            A.CallTo(() => _personService.GetAllPeopleAsync()).Returns(new List<PersonViewModel>());
 
             // Act
             var result = await _controller.GetPeople();
@@ -68,18 +59,16 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
             // Assert
             var notFoundResult = result.Result as NotFoundObjectResult;
             notFoundResult.Should().NotBeNull();
-            notFoundResult.Value.Should().Be("No persons detected in the database");
+            notFoundResult.Value.Should().Be("No person found");
         }
 
         [Fact]
         public async Task GetPerson_ReturnsOkResult_WithPerson()
         {
             // Arrange
-            var person = new Person { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
-            var personViewModel = new PersonViewModel() { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
+            var person = new PersonViewModel { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
 
             A.CallTo(() => _personService.GetPersonByIdAsync(1)).Returns(person);
-            A.CallTo(() => _personConversion.ToViewModel(person)).Returns(personViewModel);
 
             // Act
             var result = await _controller.GetPerson(1);
@@ -96,7 +85,7 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
         public async Task GetPerson_ReturnsNotFound_WhenPersonDoesNotExist()
         {
             // Arrange
-            A.CallTo(() => _personService.GetPersonByIdAsync(10)).Returns<Person>(null!);
+            A.CallTo(() => _personService.GetPersonByIdAsync(10)).Returns<PersonViewModel>(null!);
 
             // Act
             var result = await _controller.GetPerson(10);
@@ -111,12 +100,11 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
         public async Task AddPerson_ReturnsCreatedAtActionResult_WhenPersonIsAdded()
         {
             // Arrange
-            var personViewModel = new PersonViewModel() { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
-            var person = new Person { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
+            var personViewModel = new PersonViewModel { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
             var response = new Response { Flag = true };
 
-            A.CallTo(() => _personConversion.ToEntity(personViewModel)).Returns(person);
-            A.CallTo(() => _personService.AddPersonAsync(person)).Returns(response);
+            A.CallTo(() => _validationService.Validate(personViewModel)).Returns(new List<ValidationResult>());
+            A.CallTo(() => _personService.AddPersonAsync(personViewModel)).Returns(response);
 
             // Act
             var result = await _controller.AddPerson(personViewModel);
@@ -131,10 +119,13 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
         public async Task AddPerson_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
-            _controller.ModelState.AddModelError("FirstName", "First name is required");
+            var personViewModel = new PersonViewModel { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doetest.com" };
+            var validationResults = new List<ValidationResult> { new ValidationResult("First name is required") };
+
+            A.CallTo(() => _validationService.Validate(personViewModel)).Returns(validationResults);
 
             // Act
-            var result = await _controller.AddPerson(new PersonViewModel() { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" });
+            var result = await _controller.AddPerson(personViewModel);
 
             // Assert
             var badRequestResult = result.Result as BadRequestObjectResult;
@@ -146,12 +137,11 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
         public async Task UpdatePerson_ReturnsOkResult_WhenPersonIsUpdated()
         {
             // Arrange
-            var personViewModel = new PersonViewModel() { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
-            var person = new Person { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
+            var personViewModel = new PersonViewModel { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
             var response = new Response { Flag = true };
 
-            A.CallTo(() => _personConversion.ToEntity(personViewModel)).Returns(person);
-            A.CallTo(() => _personService.UpdatePersonAsync(person)).Returns(response);
+            A.CallTo(() => _validationService.Validate(personViewModel)).Returns(new List<ValidationResult>());
+            A.CallTo(() => _personService.UpdatePersonAsync(personViewModel)).Returns(response);
 
             // Act
             var result = await _controller.UpdatePerson(personViewModel);
@@ -166,10 +156,13 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
         public async Task UpdatePerson_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
-            _controller.ModelState.AddModelError("FirstName", "First name is required");
+            var personViewModel = new PersonViewModel { Id = 1, FirstName = string.Empty, LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" };
+            var validationResults = new List<ValidationResult> { new ValidationResult("First name is required") };
+
+            A.CallTo(() => _validationService.Validate(personViewModel)).Returns(validationResults);
 
             // Act
-            var result = await _controller.UpdatePerson(new PersonViewModel() { Id = 1, FirstName = string.Empty, LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1), DepartmentId = 1, Email = "John.Doe@test.com" });
+            var result = await _controller.UpdatePerson(personViewModel);
 
             // Assert
             var badRequestResult = result.Result as BadRequestObjectResult;
@@ -189,7 +182,7 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
             var result = await _controller.DeletePerson(1);
 
             // Assert
-            var okResult = result as OkObjectResult;
+            var okResult = result.Result as OkObjectResult;
             okResult.Should().NotBeNull();
             okResult.Value.Should().Be(response);
         }
@@ -206,7 +199,7 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
             var result = await _controller.DeletePerson(1);
 
             // Assert
-            var badRequestResult = result as BadRequestObjectResult;
+            var badRequestResult = result.Result as BadRequestObjectResult;
             badRequestResult.Should().NotBeNull();
             badRequestResult.Value.Should().Be(response);
         }

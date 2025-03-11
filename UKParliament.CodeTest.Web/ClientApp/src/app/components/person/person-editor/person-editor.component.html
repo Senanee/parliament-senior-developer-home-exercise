@@ -5,9 +5,9 @@
   </div>
   <ng-template #displayform>
     <div *ngIf="validationErrors.length > 0">
-      <div class="error">Errors</div>
+      <div class="is-invalid">Errors</div>
       <ul>
-        <li *ngFor="let error of validationErrors" class="error">{{ error }}</li>
+        <li *ngFor="let error of validationErrors" class="text-danger">{{ error }}</li>
       </ul>
     </div>
     <form [formGroup]="personForm" (ngSubmit)="onSave()">

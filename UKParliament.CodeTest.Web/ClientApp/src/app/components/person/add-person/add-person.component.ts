@@ -50,6 +50,7 @@ export class AddPersonComponent implements OnInit {
       };
       this.personService.addPerson(updatedPerson).subscribe({
         next: () => {
+          alert(`${updatedPerson.firstName} ${updatedPerson.lastName} created successfully!`);
           this.closeForm();
         },
         error: (errorResponse: { error: { errors: string[]; }; }) => {

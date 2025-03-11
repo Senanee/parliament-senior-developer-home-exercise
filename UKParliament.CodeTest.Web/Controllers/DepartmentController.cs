@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UKParliament.CodeTest.Application.Conversions.Interfaces;
 using UKParliament.CodeTest.Application.ViewModels;
-using UKParliament.CodeTest.Services.Interface;
+using UKParliament.CodeTest.Services.Service.Interface;
 
 namespace UKParliament.CodeTest.Web.Controllers
 {
@@ -12,23 +12,24 @@ namespace UKParliament.CodeTest.Web.Controllers
     public class DepartmentController : ControllerBase
     {
         private readonly IDepartmentService _departmentService;
-        private readonly IDepartmentConversion _departmentConversion;
 
-        public DepartmentController(IDepartmentService departmentService, IDepartmentConversion departmentConversion)
+        public DepartmentController(IDepartmentService departmentService)
         {
             _departmentService = departmentService;
-            _departmentConversion = departmentConversion;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DepartmentViewModel>>> GetDepartments()
         {
-            var departments = await _departmentService.GetAllDepartmentsAsync();
-            if (!departments.Any())
-                return NotFound("No departments detected in the database");
-
-            var list = _departmentConversion.ToViewModelList(departments);
-            return list.Any() ? Ok(list) : NotFound("No departments found");
+            try
+            {
+                var departments = await _departmentService.GetAllDepartmentsAsync();
+                return departments.Any() ? Ok(departments) : NotFound("No departments found");
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while retrieving departments");
+            }
         }
     }
 }

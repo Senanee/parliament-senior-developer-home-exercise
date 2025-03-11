@@ -1,10 +1,8 @@
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using UKParliament.CodeTest.Application.Conversions.Interfaces;
 using UKParliament.CodeTest.Application.ViewModels;
-using UKParliament.CodeTest.Data.Entities;
-using UKParliament.CodeTest.Services.Interface;
+using UKParliament.CodeTest.Services.Service.Interface;
 using UKParliament.CodeTest.Web.Controllers;
 using Xunit;
 
@@ -13,33 +11,25 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
     public class DepartmentControllerTests
     {
         private readonly IDepartmentService _departmentService;
-        private readonly IDepartmentConversion _departmentConversion;
         private readonly DepartmentController _controller;
 
         public DepartmentControllerTests()
         {
             _departmentService = A.Fake<IDepartmentService>();
-            _departmentConversion = A.Fake<IDepartmentConversion>();
-            _controller = new DepartmentController(_departmentService, _departmentConversion);
+            _controller = new DepartmentController(_departmentService);
         }
 
         [Fact]
         public async Task GetDepartments_ReturnsOkResult_WithListOfDepartments()
         {
             // Arrange
-            var departments = new List<Department>
-            {
-                new Department { Id = 1, Name = "HR" },
-                new Department { Id = 2, Name = "IT" }
-            };
             var departmentViewModels = new List<DepartmentViewModel>
             {
-                new DepartmentViewModel(1, "HR"),
-                new DepartmentViewModel(2, "IT")
+                new DepartmentViewModel() { Id = 1, Name = "HR" },
+                new DepartmentViewModel() { Id = 2, Name = "IT" }
             };
 
-            A.CallTo(() => _departmentService.GetAllDepartmentsAsync()).Returns(departments);
-            A.CallTo(() => _departmentConversion.ToViewModelList(departments)).Returns(departmentViewModels);
+            A.CallTo(() => _departmentService.GetAllDepartmentsAsync()).Returns(Task.FromResult((IEnumerable<DepartmentViewModel>)departmentViewModels));
 
             // Act
             var result = await _controller.GetDepartments();
@@ -56,29 +46,7 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
         public async Task GetDepartments_ReturnsNotFound_WhenNoDepartmentsExist()
         {
             // Arrange
-            A.CallTo(() => _departmentService.GetAllDepartmentsAsync()).Returns(new List<Department>());
-
-            // Act
-            var result = await _controller.GetDepartments();
-
-            // Assert
-            var notFoundResult = result.Result as NotFoundObjectResult;
-            notFoundResult.Should().NotBeNull();
-            notFoundResult.Value.Should().Be("No departments detected in the database");
-        }
-
-        [Fact]
-        public async Task GetDepartments_ReturnsNotFound_WhenConversionFails()
-        {
-            // Arrange
-            var departments = new List<Department>
-            {
-                new Department { Id = 1, Name = "HR" },
-                new Department { Id = 2, Name = "IT" }
-            };
-
-            A.CallTo(() => _departmentService.GetAllDepartmentsAsync()).Returns(departments);
-            A.CallTo(() => _departmentConversion.ToViewModelList(departments)).Returns(new List<DepartmentViewModel>());
+            A.CallTo(() => _departmentService.GetAllDepartmentsAsync()).Returns(Task.FromResult(Enumerable.Empty<DepartmentViewModel>()));
 
             // Act
             var result = await _controller.GetDepartments();
@@ -88,5 +56,23 @@ namespace UKParliament.CodeTest.Tests.Web.Controllers
             notFoundResult.Should().NotBeNull();
             notFoundResult.Value.Should().Be("No departments found");
         }
+
+        [Fact]
+        public async Task GetDepartments_ReturnsInternalServerError_WhenExceptionOccurs()
+        {
+            // Arrange
+            A.CallTo(() => _departmentService.GetAllDepartmentsAsync()).Throws<Exception>();
+
+            // Act
+            var result = await _controller.GetDepartments();
+
+            // Assert
+            var internalServerErrorResult = result.Result as ObjectResult;
+            internalServerErrorResult.Should().NotBeNull();
+            internalServerErrorResult.StatusCode.Should().Be(500);
+            internalServerErrorResult.Value.Should().Be("An error occurred while retrieving departments");
+        }
+
     }
 }
+

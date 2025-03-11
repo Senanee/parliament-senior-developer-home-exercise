@@ -93,7 +93,8 @@ export class PersonEditorComponent implements OnInit, OnDestroy, OnChanges {
         ...this.personForm.value,
       };
       this.personService.updatePerson(updatedPerson).subscribe({
-        next: () => {
+        next: (response) => {
+          alert(response);
           this.closeForm();
         },
         error: (errorResponse: { error: { errors: string[]; }; }) => {

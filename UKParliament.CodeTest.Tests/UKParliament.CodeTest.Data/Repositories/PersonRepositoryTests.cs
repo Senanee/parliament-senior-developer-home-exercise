@@ -107,6 +107,21 @@ namespace UKParliament.CodeTest.Tests.UKParliament.CodeTest.Data.Repositories
         }
 
         [Fact]
+        public async Task UpdateAsync_ShouldThrowDbUpdateConcurrencyException_WhenPersonDoesNotExist()
+        {
+            // Arrange
+            await using var context = new PersonManagerContext(_dbContextOptions);
+            var repository = new PersonRepository(context);
+            var person = new Person { Id = 999, FirstName = "NonExistent", LastName = "Person" };
+
+            // Act
+            Func<Task> act = async () => await repository.UpdateAsync(person);
+
+            // Assert
+            await act.Should().ThrowAsync<DbUpdateConcurrencyException>().WithMessage("Attempted to update an entity that does not exist in the store.");
+        }
+
+        [Fact]
         public async Task DeleteAsync_ShouldRemovePerson()
         {
             // Arrange
@@ -122,6 +137,20 @@ namespace UKParliament.CodeTest.Tests.UKParliament.CodeTest.Data.Repositories
 
             // Assert
             context.People.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task DeleteAsync_ShouldNotThrowException_WhenPersonDoesNotExist()
+        {
+            // Arrange
+            await using var context = new PersonManagerContext(_dbContextOptions);
+            var repository = new PersonRepository(context);
+
+            // Act
+            Func<Task> act = async () => await repository.DeleteAsync(999);
+
+            // Assert
+            await act.Should().NotThrowAsync();
         }
 
         [Fact]
@@ -155,6 +184,25 @@ namespace UKParliament.CodeTest.Tests.UKParliament.CodeTest.Data.Repositories
 
             // Assert
             result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task GetByAsync_ShouldReturnPerson_WhenPredicateMatchesOnLastName()
+        {
+            // Arrange
+            await using var context = new PersonManagerContext(_dbContextOptions);
+            var person = new Person { FirstName = "John", LastName = "Doe" };
+            context.People.Add(person);
+            await context.SaveChangesAsync();
+
+            var repository = new PersonRepository(context);
+
+            // Act
+            var result = await repository.GetByAsync(p => p.LastName == "Doe");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.LastName.Should().Be("Doe");
         }
     }
 }

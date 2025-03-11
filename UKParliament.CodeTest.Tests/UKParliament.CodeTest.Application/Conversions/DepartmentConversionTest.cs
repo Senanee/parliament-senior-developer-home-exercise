@@ -19,7 +19,7 @@ namespace UKParliament.CodeTest.Tests.UKParliament.CodeTest.Application.Conversi
         public void ToEntity_ReturnsDepartmentEntity_WhenViewModelIsValid()
         {
             // Arrange
-            var departmentViewModel = new DepartmentViewModel(1, "HR");
+            var departmentViewModel = new DepartmentViewModel() { Id = 1, Name = "HR" };
 
             // Act
             var result = _departmentConversion.ToEntity(departmentViewModel);
