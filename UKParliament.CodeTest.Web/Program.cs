@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using UKParliament.CodeTest.Application.Conversions;
+using UKParliament.CodeTest.Application.Conversions.Interfaces;
 using UKParliament.CodeTest.Data;
+using UKParliament.CodeTest.Data.Repositories.Interfaces;
+using UKParliament.CodeTest.Data.Repositories;
 using UKParliament.CodeTest.Services.Interface;
 using UKParliament.CodeTest.Services.Service;
 
@@ -16,7 +20,10 @@ public class Program
 
         builder.Services.AddDbContext<PersonManagerContext>(op => op.UseInMemoryDatabase("PersonManager"));
 
-        // Register services with the correct interfaces
+        builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+        builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+        builder.Services.AddScoped<IDepartmentConversion, DepartmentConversion>();
+        builder.Services.AddScoped<IPersonConversion, PersonConversion>();
         builder.Services.AddScoped<IPersonService, PersonService>();
         builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 

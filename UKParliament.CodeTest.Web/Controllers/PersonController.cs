@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using UKParliament.CodeTest.Application.Conversions;
+using UKParliament.CodeTest.Application.Conversions.Interfaces;
 using UKParliament.CodeTest.Application.Responses;
 using UKParliament.CodeTest.Application.ViewModels;
 using UKParliament.CodeTest.Services.Interface;
+using UKParliament.CodeTest.Services.Service;
 
 namespace UKParliament.CodeTest.Web.Controllers;
 
@@ -12,62 +15,72 @@ namespace UKParliament.CodeTest.Web.Controllers;
 [AllowAnonymous]
 public class PersonController : ControllerBase
 {
-    private readonly IPersonService personInterface;
+    private readonly IPersonService _personService;
+    private readonly IPersonConversion _personConversion;
+    private readonly IValidationService _validationService;
 
-    public PersonController(IPersonService personService)
+    public PersonController(IPersonService personService, IPersonConversion personConversion, IValidationService validationService)
     {
-        personInterface = personService;
+        _personService = personService;
+        _personConversion = personConversion;
+        _validationService = validationService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PersonViewModel>>> GetPeople()
     {
-        var people = await personInterface.GetAllPeopleAsync();
+        var people = await _personService.GetAllPeopleAsync();
+
         if (!people.Any())
             return NotFound("No persons detected in the database");
 
-        var (_, list) = PersonConversion.FromEntity(null!, people);
+        var list = _personConversion.ToViewModelList(people);
         return list!.Any() ? Ok(list) : NotFound("No person found");
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<PersonViewModel>> GetPerson(int id)
     {
-        var person = await personInterface.GetPersonByIdAsync(id);
-        if (person == null)
-        {
+        var person = await _personService.GetPersonByIdAsync(id);
+
+        if (person == null || !(person.Id > 0))
             return NotFound("No person found");
-        }
-        var (_person, _) = PersonConversion.FromEntity(person, null!);
+
+        var _person = _personConversion.ToViewModel(person);
         return _person is not null ? Ok(_person) : NotFound("No person found");
     }
 
     [HttpPost]
     public async Task<ActionResult<Response>> AddPerson(PersonViewModel person)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var personEntity = _personConversion.ToEntity(person);
+        var response = await _personService.AddPersonAsync(personEntity);
 
-        var getEntity = PersonConversion.ToEntity(person);
-        var response = await personInterface.AddPersonAsync(getEntity);
-        return response.Flag is true ? CreatedAtAction(nameof(AddPerson), response) : BadRequest(response);
+        if (!response.Flag)
+        {
+            return BadRequest(response);
+        }
+
+        return CreatedAtAction(nameof(GetPerson), new { id = personEntity.Id }, response);
     }
 
     [HttpPut("{id}")]
     public async Task<ActionResult<Response>> UpdatePerson(PersonViewModel person)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var personEntity = _personConversion.ToEntity(person);
+        var response = await _personService.UpdatePersonAsync(personEntity);
+        if (!response.Flag)
+        {
+            return BadRequest(response);
+        }
 
-        var getEntity = PersonConversion.ToEntity(person);
-        var response = await personInterface.UpdatePersonAsync(getEntity);
-        return response.Flag is true ? Ok(response) : BadRequest(response);
+        return Ok(response);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePerson(int id)
     {
-        var response = await personInterface.DeletePersonAsync(id);
+        var response = await _personService.DeletePersonAsync(id);
         return response.Flag is true ? Ok(response) : BadRequest(response);
     }
 }

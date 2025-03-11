@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ClientApp\src\app\interceptors\error.interceptor.ts" />
     <None Remove="ClientApp\src\app\models\response.model.ts" />
   </ItemGroup>
 
@@ -33,8 +32,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\app\interceptors\error.interceptor.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\models\response.model.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ClientApp\src\app\shared\components\NewFolder\" />
+    <Folder Include="ClientApp\src\app\shared\NewFolder\" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
