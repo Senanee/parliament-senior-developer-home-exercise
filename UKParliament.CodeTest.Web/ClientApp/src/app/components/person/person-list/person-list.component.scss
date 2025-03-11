@@ -1,0 +1,38 @@
+/* person-list.component.scss */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.list-group-item {
+  cursor: pointer;
+}
+
+.list-group-item.active {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.row {
+  flex-grow: 1;
+  overflow: auto;
+}
+
+@media (max-width: 767.98px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .col-12 {
+    margin-bottom: 1rem;
+  }
+}

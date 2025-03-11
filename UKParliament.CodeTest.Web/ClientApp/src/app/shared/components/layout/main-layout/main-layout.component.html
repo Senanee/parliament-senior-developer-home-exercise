@@ -1,0 +1,17 @@
+<!-- main-layout.component.html -->
+<section class="d-flex flex-column min-vh-100">
+  <app-header></app-header>
+  <main class="d-flex flex-grow-1">
+    <article class="sidebar-container">
+      <button class="btn btn-primary d-md-none" (click)="toggleSidebar()">Toggle Sidebar</button>
+      <app-sidebar [class.hidden]="isSidebarHidden"></app-sidebar>
+    </article>
+    <article class="p-4 flex-grow-1">
+      <router-outlet></router-outlet>
+    </article>
+  </main>
+  <footer class="container-fluid w-100 bg-dark text-light py-3">
+  <app-footer></app-footer>
+  </footer>   
+</section>
+

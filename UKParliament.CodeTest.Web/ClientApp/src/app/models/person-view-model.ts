@@ -5,4 +5,5 @@ export interface PersonViewModel {
   lastName: string;
   dateOfBirth: Date;
   departmentId: number;
+  email: string;
 }

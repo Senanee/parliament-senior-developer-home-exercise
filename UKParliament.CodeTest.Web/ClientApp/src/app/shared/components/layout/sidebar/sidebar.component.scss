@@ -1,0 +1,14 @@
+.sidebar {
+  background-color: rgb(195, 137, 67);
+}
+:host {
+  display: block;
+  width: 250px;
+  flex-grow: 1;
+}
+
+@media (max-width: 767.98px) {
+  :host {
+    width: 100%;
+  }
+}

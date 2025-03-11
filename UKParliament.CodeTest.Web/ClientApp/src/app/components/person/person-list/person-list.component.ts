@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { PersonViewModel } from '../../models/person-view-model';
-import { PersonService } from '../../services/person-service/person.service';
-import { PersonEditorService } from '../../services/person-editor/person-editor.service';
+import { PersonViewModel } from '../../../models/person-view-model';
+import { PersonService } from '../../../services/person-service/person.service';
+import { PersonEditorService } from '../../../services/person-editor/person-editor.service';
 
 @Component({
   selector: 'app-person-list',
@@ -14,6 +14,7 @@ export class PersonListComponent implements OnInit {
   searchTerm: string = '';
   selectedPerson: PersonViewModel | null = null;
   loading: boolean = true;
+  addUser: boolean= false;
 
   constructor(private personService: PersonService, private personEditorService: PersonEditorService) { }
 
@@ -49,27 +50,15 @@ export class PersonListComponent implements OnInit {
   }
 
   addPerson(): void {
+    this.addUser=true;
     this.personEditorService.closeEditor();
-    this.selectedPerson = { id: 0, firstName: '', lastName: '', dateOfBirth: new Date(), departmentId: 0};
-  }
-
-  savePerson(person: PersonViewModel): void {
-    if (person.id === 0) {
-      this.personService.addPerson(person).subscribe(() => this.loadPeople());
-    } else {
-      this.personService.updatePerson(person).subscribe(() => this.loadPeople());
-    }
     this.selectedPerson = null;
-  }
-
-  deletePerson(person: PersonViewModel): void {
-    this.personService.deletePerson(person.id).subscribe(() => this.loadPeople());
-    this.selectedPerson = null;
-    this.personEditorService.closeEditor();
   }
 
   closePersonEditor(): void {
+    this.addUser = false;
     this.selectedPerson = null;
     this.personEditorService.closeEditor();
+    this.loadPeople();
   }
 }
