@@ -1,32 +1,34 @@
-﻿using UKParliament.CodeTest.Application.ViewModels;
-using UKParliament.CodeTest.Data;
+﻿using UKParliament.CodeTest.Application.Conversions.Interfaces;
+using UKParliament.CodeTest.Application.ViewModels;
+using UKParliament.CodeTest.Data.Entities;
 
 namespace UKParliament.CodeTest.Application.Conversions
 {
-    public static class DepartmentConversion
+    public class DepartmentConversion : IDepartmentConversion
     {
-        public static Department ToEntity(DepartmentViewModel department) => new()
+        public Department ToEntity(DepartmentViewModel departmentViewModel)
         {
-            Id = department.Id,
-            Name = department.Name,
-        };
+            if (departmentViewModel == null) throw new ArgumentNullException(nameof(departmentViewModel));
 
-        public static (DepartmentViewModel?, IEnumerable<DepartmentViewModel>?) FromEntity(Department department, IEnumerable<Department>? departments)
+            return new Department
+            {
+                Id = departmentViewModel.Id,
+                Name = departmentViewModel.Name,
+            };
+        }
+
+        public DepartmentViewModel ToViewModel(Department department)
         {
-            if (department is not null || departments is null)
-            {
-                var singleProduct = new DepartmentViewModel(department!.Id, department.Name!);
-                return (singleProduct, null);
-            }
+            if (department == null) throw new ArgumentNullException(nameof(department));
 
-            if (departments is not null || department is null)
-            {
-                var _departments = departments!.Select(d =>
-                    new DepartmentViewModel(d!.Id, d.Name!)).ToList();
-                return (null, _departments);
-            }
+            return new DepartmentViewModel(department.Id, department.Name);
+        }
 
-            return (null, null);
+        public IEnumerable<DepartmentViewModel> ToViewModelList(IEnumerable<Department> departments)
+        {
+            if (departments == null) throw new ArgumentNullException(nameof(departments));
+
+            return departments.Select(d => new DepartmentViewModel(d.Id, d.Name)).ToList();
         }
     }
 }

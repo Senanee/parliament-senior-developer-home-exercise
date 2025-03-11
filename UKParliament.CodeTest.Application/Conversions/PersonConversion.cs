@@ -1,35 +1,46 @@
-﻿using UKParliament.CodeTest.Application.ViewModels;
-using UKParliament.CodeTest.Data;
+﻿using System;
+using UKParliament.CodeTest.Application.Conversions.Interfaces;
+using UKParliament.CodeTest.Application.ViewModels;
+using UKParliament.CodeTest.Data.Entities;
 
 namespace UKParliament.CodeTest.Application.Conversions
 {
-    public static class PersonConversion
+    public class PersonConversion : IPersonConversion
     {
-        public static Person ToEntity(PersonViewModel person) => new()
+        public Person ToEntity(PersonViewModel personViewModel)
         {
-            Id = person.Id,
-            FirstName = person.FirstName,
-            LastName = person.LastName,
-            DateOfBirth = person.DateOfBirth,
-            DepartmentId = person.DepartmentId
-        };
+            if (personViewModel == null) throw new ArgumentNullException(nameof(personViewModel));
 
-        public static (PersonViewModel?, IEnumerable<PersonViewModel>?) FromEntity(Person person, IEnumerable<Person>? people)
+            return new Person
+            {
+                Id = personViewModel.Id,
+                FirstName = personViewModel.FirstName,
+                LastName = personViewModel.LastName,
+                DateOfBirth = personViewModel.DateOfBirth,
+                DepartmentId = personViewModel.DepartmentId,
+                Email = personViewModel.Email
+            };
+        }
+
+        public PersonViewModel ToViewModel(Person person)
         {
-            if (person is not null || people is null)
-            {
-                var singleProduct = new PersonViewModel(person!.Id, person.FirstName!, person.LastName!, person.DateOfBirth!, person.DepartmentId!);
-                return (singleProduct, null);
-            }
+            if (person == null) throw new ArgumentNullException(nameof(person));
 
-            if (people is not null || person is null)
-            {
-                var _people = people!.Select(person =>
-                    new PersonViewModel(person!.Id, person.FirstName!, person.LastName, person.DateOfBirth, person!.DepartmentId));
-                return (null, _people);
-            }
+            return new PersonViewModel() { Id=person.Id, 
+                FirstName= person.FirstName, LastName = person.LastName, DateOfBirth = person.DateOfBirth, DepartmentId = person.DepartmentId, Email = person.Email };
+        }
 
-            return (null, null);
+        public IEnumerable<PersonViewModel> ToViewModelList(IEnumerable<Person> people)
+        {
+            if (people == null) throw new ArgumentNullException(nameof(people));
+
+            return people.Select(person => new PersonViewModel() {  Id=person.Id,
+                FirstName = person.FirstName,
+                LastName = person.LastName,
+                DateOfBirth = person.DateOfBirth,
+                DepartmentId = person.DepartmentId,
+                Email = person.Email
+            });
         }
     }
 }
